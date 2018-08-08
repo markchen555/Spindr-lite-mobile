@@ -17,9 +17,8 @@ import {
 // Redux
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-//import { NavigationActions } from 'react-navigation';
 
-import { updateUserData } from '../actions/authAction';
+import { signInUserData } from '../actions/authAction';
 import Loading from '../screens/LoadingScreen';
 
 class LoginScreen extends React.Component {
@@ -29,6 +28,7 @@ class LoginScreen extends React.Component {
     this.state = {
       isReady: false,
       username: null,
+      email: null,
       password: null,
     }
   }
@@ -38,9 +38,8 @@ class LoginScreen extends React.Component {
   };
 
   componentDidMount() {
-    //this.props.actions.fbLogin();
     this.spinLogo();
-    // this.props.updateUserData();
+    //this.props.actions.fbLogin();
   }
 
   successfulLogin = () => {
@@ -68,24 +67,26 @@ class LoginScreen extends React.Component {
   }
 
   _signInAsync = async () => {
-    await AsyncStorage.setItem('userToken', 'abc');
-    this.props.navigation.navigate('Main');
+    if((this.state.username || this.state.email) && this.state.password) {
+      console.log('user pass')
+      if(this.state.username){
+        await this.props.signInUserData({username: this.state.username, password: this.state.password})
+        await AsyncStorage.setItem('userToken', this.state.username);
+        this.props.navigation.navigate('Main');
+      }
+      if(this.state.email) {
+        await this.props.signInUserData({email: this.state.email, password: this.state.password})    
+        await AsyncStorage.setItem('userToken', this.state.email);   
+        this.props.navigation.navigate('Main'); 
+      }
+    } else {
+      alert('Please enter a valid username or email and password!')
+    }
   };
 
   _register = () => {
     this.props.navigation.navigate('Register');
   }
-
-  // resetNavigation = (targetRoute) => {
-  //   const resetAction = NavigationActions.reset({
-  //     index: 0,
-  //     actions: [
-  //       NavigationActions.navigate({ routeName: targetRoute }),
-  //     ],
-  //   });
-  //   this.props.navigation.dispatch(resetAction);
-  // }
-
 
   render() {
     const spinLogo = this.spinValue.interpolate({
@@ -117,7 +118,7 @@ class LoginScreen extends React.Component {
                 returnKeyType='next' 
                 value={this.state.username} 
                 style={[styles.loginInput, { borderBottomColor: this.state.usernameFocused ? '#FF5A5F' : 'grey'}]} 
-                placeholder='Email' 
+                placeholder='Username or Email' 
                 keyboardType='email-address'
                 autoCapitalize='none'
                 autoCorrect={false}
@@ -136,8 +137,6 @@ class LoginScreen extends React.Component {
                 onBlur={()=> this._isOnBlur('password')}
                 ref={(input) => this.passwordInput = input}
                 onChangeText={text => { this.setState({ password: text })}}/>
-                {/* <Text >{ this.props.Auth.passWord }</Text>
-                  <Text >{ this.props.Auth.userName }</Text> */}
                 <Text style={styles.forgetText}>Forget your password?</Text>
                 <TouchableOpacity style={styles.buttonContainer} onPress={this._signInAsync}>
                   <Text style={styles.buttonText}>LOGIN</Text>
@@ -256,7 +255,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  updateUserData: bindActionCreators(updateUserData, dispatch),
+  signInUserData: bindActionCreators(signInUserData, dispatch),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

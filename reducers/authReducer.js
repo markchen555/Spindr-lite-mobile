@@ -7,11 +7,12 @@ const initialState = {
 
 const authReducer = (state=initialState, action) => {
   switch(action.type) {
-    case 'UPDATE_USER_DATA':
+    case 'SIGNIN_USER_DATA':
       return {
         ...state,
         username: action.payload.username,
-        password: action.payload.passWord,
+        password: action.payload.password,
+        email: action.payload.email,
       }
     case 'REGISTER_USER_DATA':
       return {

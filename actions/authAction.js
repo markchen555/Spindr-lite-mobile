@@ -1,8 +1,8 @@
 
-export const updateUserData = () => dispatch =>  {
+export const signInUserData = (userData) => dispatch =>  {
   return dispatch({
-    type: 'UPDATE_USER_DATA',
-    payload: {userName: 'Test', passWord: '123'},
+    type: 'SIGNIN_USER_DATA',
+    payload: userData,
   })
 }
 
